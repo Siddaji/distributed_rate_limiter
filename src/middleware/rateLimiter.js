@@ -1,66 +1,31 @@
 import redisclient from "../config/redis.js";
 
-const WINDOW_SIZE = 60 * 1000;
+const WINDOW_SIZE = 60;
 const MAX_REQUESTS = 5;
 
 export const ratelimiter = async (req, res, next) => {
     const ip = req.ip;
-    const currentTime = Date.now();
 
     const key = `rate-limit:${ip}`;
-    const windowkey = `rate-limit-window:${ip}`;
 
-    const currentCount = await redisclient.get(key);
-    const windowStart = await redisclient.get(windowkey);
+    // Atomically increment request count
+    const count = await redisclient.incr(key);
 
-    res.setHeader("X-RateLimit-Limit", MAX_REQUESTS);
-
-    // First request
-    if (currentCount === null) {
-        await redisclient.set(key, 1);
-        await redisclient.set(windowkey, currentTime);
-
-        res.setHeader(
-            "X-RateLimit-Remaining",
-            MAX_REQUESTS - 1
-        );
-
-        res.setHeader(
-            "X-RateLimit-Reset",
-            Math.ceil(WINDOW_SIZE / 1000)
-        );
-
-        return next();
+    // First request of this window
+    if (count === 1) {
+        await redisclient.expire(key, WINDOW_SIZE);
     }
 
-    const timePassed = currentTime - Number(windowStart);
+    // Get remaining time
+    const resetTime = await redisclient.ttl(key);
 
-    const resetTime = Math.ceil(
-        (WINDOW_SIZE - timePassed) / 1000
+    res.setHeader(
+        "X-RateLimit-Limit",
+        MAX_REQUESTS
     );
 
-    // Window expired
-    if (timePassed >= WINDOW_SIZE) {
-        await redisclient.set(key, 1);
-        await redisclient.set(windowkey, currentTime);
-
-        res.setHeader(
-            "X-RateLimit-Remaining",
-            MAX_REQUESTS - 1
-        );
-
-        res.setHeader(
-            "X-RateLimit-Reset",
-            Math.ceil(WINDOW_SIZE / 1000)
-        );
-
-        return next();
-    }
-
-    const count = Number(currentCount);
-
     // Limit exceeded
-    if (count >= MAX_REQUESTS) {
+    if (count > MAX_REQUESTS) {
         res.setHeader(
             "X-RateLimit-Remaining",
             0
@@ -76,14 +41,10 @@ export const ratelimiter = async (req, res, next) => {
         });
     }
 
-    // Allow request
-    const newCount = count + 1;
-
-    await redisclient.set(key, newCount);
-
+    // Request allowed
     res.setHeader(
         "X-RateLimit-Remaining",
-        MAX_REQUESTS - newCount
+        MAX_REQUESTS - count
     );
 
     res.setHeader(
