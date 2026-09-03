@@ -2,6 +2,8 @@ import express from "express";
 import dotenv from "dotenv";
 import "./config/redis.js";
 import { ratelimiter } from "./middleware/rateLimiter.js";
+import authRoutes from "./routes/authRoutes.js";
+import profileRoutes from "./routes/profileRoutes.js";
 
 // import cors from "cors";
 
@@ -9,6 +11,9 @@ dotenv.config();
 
 const app = express();
 app.use(express.json());
+
+app.use("/auth", authRoutes);
+app.use(profileRoutes);
 
 app.use(ratelimiter);
 
