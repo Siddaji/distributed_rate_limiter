@@ -1,12 +1,12 @@
 import redisclient from "../config/redis.js";
 
 const WINDOW_SIZE = 60;
-const MAX_REQUESTS = 5;
 
 export const ratelimiter = async (req, res, next) => {
     const ip = req.ip;
 
     const key = `rate-limit:${ip}`;
+    const MAX_REQUESTS = req.user.role === "premium" ? 20 : 5;
 
     // Atomically increment request count
     const count = await redisclient.incr(key);
