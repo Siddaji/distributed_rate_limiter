@@ -6,21 +6,21 @@ export const ratelimiter = async (req, res, next) => {
   const key = `rate-limit:user:${req.user.id}`;
   const MAX_REQUESTS = req.user.role === "premium" ? 20 : 5;
 
-  // Atomically increment request count
   const count = await redisclient.incr(key);
+  await redisclient.incr("stats:totalRequests");
+  
 
-  // First request of this window
   if (count === 1) {
     await redisclient.expire(key, WINDOW_SIZE);
   }
 
-  // Get remaining time
   const resetTime = await redisclient.ttl(key);
 
   res.setHeader("X-RateLimit-Limit", MAX_REQUESTS);
 
-  // Limit exceeded
   if (count > MAX_REQUESTS) {
+    await redisclient.incr("stats:blockedRequests");
+    
     res.setHeader("X-RateLimit-Remaining", 0);
 
     res.setHeader("X-RateLimit-Reset", resetTime);
@@ -30,10 +30,11 @@ export const ratelimiter = async (req, res, next) => {
     });
   }
 
-  // Request allowed
   res.setHeader("X-RateLimit-Remaining", MAX_REQUESTS - count);
 
   res.setHeader("X-RateLimit-Reset", resetTime);
+
+  await redisclient.incr("stats:allowedRequests");
 
   next();
 };
