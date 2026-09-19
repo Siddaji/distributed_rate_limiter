@@ -20,6 +20,7 @@ app.use("/auth", authRoutes);
 app.use(profileRoutes);
 app.use(statsRoutes);
 
+
 app.use(ratelimiter);
 
 
@@ -29,8 +30,19 @@ app.get("/", (req, res) =>{
     });
 });
 
+
+
+app.use((err, req, res, next) => {
+    console.error("Server Error:", err.message);
+
+    res.status(500).json({
+        message: "Internal server error"
+    });
+});
+
+
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () =>{
     console.log(`Server is running on:${PORT}`);
-})
+});

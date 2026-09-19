@@ -8,8 +8,13 @@ redisclient.on('error', (error) =>{
     console.error('Redis Client Error', error);
 });
 
-await redisclient.connect();
+try{
+    await redisclient.connect();
 
-console.log('Redis client connected successfully');
+    console.log('Redis client connected successfully');
+
+}catch(error){
+    console.error('Redis Client Connection Error', error.Message);
+}
 
 export default redisclient;

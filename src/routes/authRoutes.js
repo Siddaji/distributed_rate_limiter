@@ -15,6 +15,20 @@ router.post("/register", async (req, res) => {
         });
     }
 
+    const cleanUsername = username.trim();
+
+    if(cleanUsername.length < 3 || cleanUsername.length > 20) {
+        return res.status(400).json({
+            message : "Username must be between 3 and 20 characters"
+        });
+    }
+
+    if(password.length < 6 || password.length > 50){
+        return res.status(400).json({
+            message : "Password must be between 6 and 50 characters"
+        });
+    }
+
     const existingUser = users.find(user => user.username === username);
 
     if(existingUser){
@@ -44,8 +58,22 @@ router.post("/register", async (req, res) => {
 router.post("/login", async (req, res) => {
     const { username, password } = req.body;
 
+    if(!username || !password){
+        return res.status(400).json({
+            message : "Username and password are required"
+        });
+    }
+
+    const cleanUsername = username.trim();
+
+    if(cleanUsername.length < 3 || cleanUsername.length > 20) {
+        return res.status(400).json({
+            message : "Username must be between 3 and 20 characters"
+        });
+    }
+
     const user = users.find(
-        user => user.username === username
+        user => user.username === cleanUsername
     );
 
     if (!user) {
