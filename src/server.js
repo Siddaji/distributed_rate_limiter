@@ -21,9 +21,6 @@ app.use(profileRoutes);
 app.use(statsRoutes);
 
 
-app.use(ratelimiter);
-
-
 app.get("/", (req, res) =>{
     res.json({
          message: "Rate Limiter API is running"
