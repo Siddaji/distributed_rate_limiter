@@ -9,7 +9,7 @@ function App() {
   });
 
   useEffect(() => {
-    fetch("http://localhost:5000/stats")
+    fetch("https://distributed-rate-limiter-dvbj.onrender.com/stats")
       .then((res) => res.json())
       .then((data) => {
         setStats(data);
