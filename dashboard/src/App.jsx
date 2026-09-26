@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+
 import {
   LineChart,
   Line,
@@ -7,7 +8,10 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  BarChart,
+  Bar,
 } from "recharts";
+
 import "./App.css";
 
 function App() {
@@ -25,36 +29,55 @@ function App() {
 
   const [requestRate, setRequestRate] = useState([]);
 
+  // =========================
   // Real-time statistics
+  // =========================
+
   useEffect(() => {
     const fetchStats = () => {
-      fetch("https://distributed-rate-limiter-dvbj.onrender.com/stats")
+      fetch(
+        "https://distributed-rate-limiter-dvbj.onrender.com/stats"
+      )
         .then((res) => res.json())
         .then((data) => {
           setStats(data);
         })
         .catch((error) => {
-          console.error("Error fetching stats:", error);
+          console.error(
+            "Error fetching stats:",
+            error
+          );
         });
     };
 
     fetchStats();
 
-    const interval = setInterval(fetchStats, 2000);
+    const interval = setInterval(
+      fetchStats,
+      2000
+    );
 
     return () => clearInterval(interval);
   }, []);
 
+  // =========================
   // API and Redis health
+  // =========================
+
   useEffect(() => {
     const fetchHealth = () => {
-      fetch("https://distributed-rate-limiter-dvbj.onrender.com/health")
+      fetch(
+        "https://distributed-rate-limiter-dvbj.onrender.com/health"
+      )
         .then((res) => res.json())
         .then((data) => {
           setHealth(data);
         })
         .catch((error) => {
-          console.error("Error fetching health data:", error);
+          console.error(
+            "Error fetching health data:",
+            error
+          );
 
           setHealth({
             status: "unhealthy",
@@ -66,119 +89,242 @@ function App() {
 
     fetchHealth();
 
-    const interval = setInterval(fetchHealth, 5000);
+    const interval = setInterval(
+      fetchHealth,
+      5000
+    );
 
     return () => clearInterval(interval);
   }, []);
 
+  // =========================
   // Requests per second
+  // =========================
+
   useEffect(() => {
     const fetchRequestRate = () => {
-      fetch("https://distributed-rate-limiter-dvbj.onrender.com/request-rate")
+      fetch(
+        "https://distributed-rate-limiter-dvbj.onrender.com/request-rate"
+      )
         .then((res) => res.json())
         .then((data) => {
-          console.log("Request rate data:", data);
           setRequestRate(data);
         })
         .catch((error) => {
-          console.error("Error fetching request rate:", error);
+          console.error(
+            "Error fetching request rate:",
+            error
+          );
         });
     };
 
     fetchRequestRate();
 
-    const interval = setInterval(fetchRequestRate, 2000);
+    const interval = setInterval(
+      fetchRequestRate,
+      2000
+    );
 
     return () => clearInterval(interval);
   }, []);
 
+  // =========================
+  // Calculations
+  // =========================
+
   const blockRate =
     stats.totalRequests > 0
-      ? ((stats.blockedRequests / stats.totalRequests) * 100).toFixed(1)
+      ? (
+          (stats.blockedRequests /
+            stats.totalRequests) *
+          100
+        ).toFixed(1)
       : 0;
 
   const allowedPercentage =
     stats.totalRequests > 0
-      ? ((stats.allowedRequests / stats.totalRequests) * 100).toFixed(1)
+      ? (
+          (stats.allowedRequests /
+            stats.totalRequests) *
+          100
+        ).toFixed(1)
       : 0;
+
+  // =========================
+  // Chart data
+  // =========================
+
+  const trafficData = [
+    {
+      name: "Requests",
+      allowed: stats.allowedRequests,
+      blocked: stats.blockedRequests,
+    },
+  ];
 
   return (
     <div className="dashboard">
 
-      {/* Header */}
+      {/* =========================
+          Header
+      ========================= */}
+
       <header className="header">
+
         <div>
           <h1>Rate Limiter</h1>
-          <p>Distributed API monitoring dashboard</p>
+
+          <p>
+            Distributed API monitoring dashboard
+          </p>
         </div>
 
         <div className="status">
+
           <span
-            className="status-dot"
-            style={{
-              background:
-                health.status === "healthy" ? "#22c55e" : "#ef4444",
-            }}
+            className={`status-dot ${
+              health.status === "healthy"
+                ? "live"
+                : "offline-dot"
+            }`}
           ></span>
 
           {health.status === "healthy"
-            ? "API Online"
+            ? "Live · API Online"
             : "API Offline"}
+
         </div>
+
       </header>
+
 
       <main>
 
-        {/* Statistics */}
+        {/* =========================
+            Statistics
+        ========================= */}
+
         <section className="stats-grid">
 
-          <div className="stat-card">
-            <span>Total Requests</span>
-            <h2>{(stats.totalRequests ?? 0).toLocaleString()}</h2>
-            <p>All API requests</p>
-          </div>
+          {/* Total Requests */}
 
           <div className="stat-card">
-            <span>Allowed Requests</span>
-            <h2>{(stats.allowedRequests ?? 0).toLocaleString()}</h2>
-            <p>Requests passed</p>
+
+            <span>
+              Total Requests
+            </span>
+
+            <h2 className="stat-number">
+              {(stats.totalRequests ?? 0).toLocaleString()}
+            </h2>
+
+            <p>
+              All API requests
+            </p>
+
           </div>
 
-          <div className="stat-card">
-            <span>Blocked Requests</span>
-            <h2>{(stats.blockedRequests ?? 0).toLocaleString()}</h2>
-            <p>Rate limited requests</p>
-          </div>
+
+          {/* Allowed Requests */}
 
           <div className="stat-card">
-            <span>Block Rate</span>
-            <h2>{blockRate}%</h2>
-            <p>Traffic rejected</p>
+
+            <span>
+              Allowed Requests
+            </span>
+
+            <h2 className="stat-number">
+              {(stats.allowedRequests ?? 0).toLocaleString()}
+            </h2>
+
+            <p>
+              Requests passed
+            </p>
+
+          </div>
+
+
+          {/* Blocked Requests */}
+
+          <div className="stat-card">
+
+            <span>
+              Blocked Requests
+            </span>
+
+            <h2 className="stat-number">
+              {(stats.blockedRequests ?? 0).toLocaleString()}
+            </h2>
+
+            <p>
+              Rate limited requests
+            </p>
+
+          </div>
+
+
+          {/* Block Rate */}
+
+          <div className="stat-card">
+
+            <span>
+              Block Rate
+            </span>
+
+            <h2 className="stat-number">
+              {blockRate}%
+            </h2>
+
+            <p>
+              Traffic rejected
+            </p>
+
           </div>
 
         </section>
 
-        {/* Overview + System Status */}
+
+        {/* =========================
+            Overview + System Status
+        ========================= */}
+
         <section className="content-grid">
 
           {/* Rate Limiting Overview */}
+
           <div className="panel">
 
             <div className="panel-header">
+
               <div>
-                <h3>Rate Limiting Overview</h3>
-                <p>Current traffic distribution</p>
+
+                <h3>
+                  Rate Limiting Overview
+                </h3>
+
+                <p>
+                  Current traffic distribution
+                </p>
+
               </div>
+
             </div>
+
+
+            {/* Allowed */}
 
             <div className="progress-section">
 
               <div className="progress-label">
-                <span>Allowed</span>
+
+                <span>
+                  Allowed
+                </span>
 
                 <strong>
                   {allowedPercentage}%
                 </strong>
+
               </div>
 
               <div className="progress-bar">
@@ -194,14 +340,21 @@ function App() {
 
             </div>
 
+
+            {/* Blocked */}
+
             <div className="progress-section">
 
               <div className="progress-label">
-                <span>Blocked</span>
+
+                <span>
+                  Blocked
+                </span>
 
                 <strong>
                   {blockRate}%
                 </strong>
+
               </div>
 
               <div className="progress-bar">
@@ -219,18 +372,33 @@ function App() {
 
           </div>
 
+
           {/* System Status */}
+
           <div className="panel">
 
             <div className="panel-header">
+
               <div>
-                <h3>System Status</h3>
-                <p>Backend infrastructure</p>
+
+                <h3>
+                  System Status
+                </h3>
+
+                <p>
+                  Backend infrastructure
+                </p>
+
               </div>
+
             </div>
 
+
             <div className="system-item">
-              <span>API Server</span>
+
+              <span>
+                API Server
+              </span>
 
               <strong
                 className={
@@ -243,10 +411,15 @@ function App() {
                   ? "Operational"
                   : "Unavailable"}
               </strong>
+
             </div>
 
+
             <div className="system-item">
-              <span>Redis</span>
+
+              <span>
+                Redis
+              </span>
 
               <strong
                 className={
@@ -259,82 +432,136 @@ function App() {
                   ? "Connected"
                   : "Disconnected"}
               </strong>
+
             </div>
 
+
             <div className="system-item">
-              <span>Server Uptime</span>
+
+              <span>
+                Server Uptime
+              </span>
 
               <strong>
                 {health.uptime}s
               </strong>
+
             </div>
 
+
             <div className="system-item">
-              <span>Rate Limiter</span>
+
+              <span>
+                Rate Limiter
+              </span>
 
               <strong className="online">
                 Active
               </strong>
+
             </div>
 
+
             <div className="system-item">
-              <span>Algorithms</span>
+
+              <span>
+                Algorithms
+              </span>
 
               <strong>
                 2 Active
               </strong>
+
             </div>
 
           </div>
 
         </section>
 
-        {/* Requests Per Second Chart */}
+
+        {/* =========================
+            Requests Per Second
+        ========================= */}
+
         <section className="chart-panel">
 
           <div className="panel-header">
 
             <div>
-              <h3>Requests per Second</h3>
+
+              <h3>
+                Requests per Second
+              </h3>
 
               <p>
                 Real-time API traffic over the last 10 seconds
               </p>
+
             </div>
 
+            <span className="chart-live">
+              ● Live
+            </span>
+
           </div>
+
 
           <div className="chart-container">
 
             <ResponsiveContainer
               width="100%"
-              height={300}
+              height="100%"
             >
 
-              <LineChart data={requestRate}>
+              <LineChart
+                data={requestRate}
+                margin={{
+                  top: 10,
+                  right: 10,
+                  left: 0,
+                  bottom: 5,
+                }}
+              >
 
                 <CartesianGrid
                   strokeDasharray="3 3"
+                  vertical={false}
                 />
 
                 <XAxis
                   dataKey="second"
                   tickFormatter={(value) =>
-                    new Date(value * 1000).toLocaleTimeString()
+                    new Date(
+                      value * 1000
+                    ).toLocaleTimeString([], {
+                      minute: "2-digit",
+                      second: "2-digit",
+                    })
                   }
+                  tick={{
+                    fontSize: 11,
+                  }}
                 />
 
                 <YAxis
                   allowDecimals={false}
+                  tick={{
+                    fontSize: 11,
+                  }}
                 />
 
                 <Tooltip
+                  cursor={{
+                    strokeDasharray: "4 4",
+                  }}
                   labelFormatter={(value) =>
-                    new Date(value * 1000).toLocaleTimeString()
+                    new Date(
+                      value * 1000
+                    ).toLocaleTimeString()
                   }
                   formatter={(value) => [
                     value,
-                    "Requests",
+                    "Requests/sec",
                   ]}
                 />
 
@@ -342,9 +569,14 @@ function App() {
                   type="monotone"
                   dataKey="requests"
                   stroke="#111827"
-                  strokeWidth={2}
-                  dot={{ r: 3 }}
-                  activeDot={{ r: 5 }}
+                  strokeWidth={3}
+                  dot={{
+                    r: 3,
+                  }}
+                  activeDot={{
+                    r: 7,
+                  }}
+                  animationDuration={500}
                 />
 
               </LineChart>
@@ -355,18 +587,123 @@ function App() {
 
         </section>
 
-        {/* Algorithms */}
+
+        {/* =========================
+            Allowed vs Blocked
+        ========================= */}
+
+        <section className="chart-panel">
+
+          <div className="panel-header">
+
+            <div>
+
+              <h3>
+                Allowed vs Blocked Requests
+              </h3>
+
+              <p>
+                Current request distribution
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <div className="chart-container">
+
+            <ResponsiveContainer
+              width="100%"
+              height="100%"
+            >
+
+              <BarChart
+                data={trafficData}
+                margin={{
+                  top: 10,
+                  right: 10,
+                  left: 0,
+                  bottom: 5,
+                }}
+              >
+
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  vertical={false}
+                />
+
+                <XAxis
+                  dataKey="name"
+                  tick={{
+                    fontSize: 11,
+                  }}
+                />
+
+                <YAxis
+                  allowDecimals={false}
+                  tick={{
+                    fontSize: 11,
+                  }}
+                />
+
+                <Tooltip />
+
+                <Bar
+                  dataKey="allowed"
+                  name="Allowed"
+                  fill="#111827"
+                  radius={[
+                    6,
+                    6,
+                    0,
+                    0,
+                  ]}
+                />
+
+                <Bar
+                  dataKey="blocked"
+                  name="Blocked"
+                  fill="#ef4444"
+                  radius={[
+                    6,
+                    6,
+                    0,
+                    0,
+                  ]}
+                />
+
+              </BarChart>
+
+            </ResponsiveContainer>
+
+          </div>
+
+        </section>
+
+
+        {/* =========================
+            Algorithms
+        ========================= */}
+
         <section className="algorithm-panel">
 
           <div>
-            <h3>Rate Limiting Algorithms</h3>
+
+            <h3>
+              Rate Limiting Algorithms
+            </h3>
 
             <p>
               Algorithms currently implemented in the system
             </p>
+
           </div>
 
+
           <div className="algorithm-grid">
+
+            {/* Fixed Window */}
 
             <div className="algorithm-card">
 
@@ -374,14 +711,20 @@ function App() {
                 01
               </div>
 
-              <h4>Fixed Window</h4>
+              <h4>
+                Fixed Window
+              </h4>
 
               <p>
-                Controls requests within a fixed time
-                window using Redis counters and TTL.
+                Controls requests within a fixed
+                time window using Redis counters
+                and TTL.
               </p>
 
             </div>
+
+
+            {/* Token Bucket */}
 
             <div className="algorithm-card">
 
@@ -389,11 +732,14 @@ function App() {
                 02
               </div>
 
-              <h4>Token Bucket</h4>
+              <h4>
+                Token Bucket
+              </h4>
 
               <p>
-                Allows controlled bursts while continuously
-                refilling tokens over time.
+                Allows controlled bursts while
+                continuously refilling tokens
+                over time.
               </p>
 
             </div>
