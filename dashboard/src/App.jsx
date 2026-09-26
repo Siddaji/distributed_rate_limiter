@@ -28,7 +28,7 @@ function App() {
   // Real-time statistics
   useEffect(() => {
     const fetchStats = () => {
-      fetch("http://localhost:5000/stats")
+      fetch("https://distributed-rate-limiter-dvbj.onrender.com/stats")
         .then((res) => res.json())
         .then((data) => {
           setStats(data);
@@ -48,7 +48,7 @@ function App() {
   // API and Redis health
   useEffect(() => {
     const fetchHealth = () => {
-      fetch("http://localhost:5000/health")
+      fetch("https://distributed-rate-limiter-dvbj.onrender.com/health")
         .then((res) => res.json())
         .then((data) => {
           setHealth(data);
@@ -74,7 +74,7 @@ function App() {
   // Requests per second
   useEffect(() => {
     const fetchRequestRate = () => {
-      fetch("http://localhost:5000/request-rate")
+      fetch("https://distributed-rate-limiter-dvbj.onrender.com/request-rate")
         .then((res) => res.json())
         .then((data) => {
           console.log("Request rate data:", data);
