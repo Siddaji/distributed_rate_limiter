@@ -12,6 +12,13 @@ export const ratelimiter = async (req, res, next) => {
 
         await redisclient.incr("stats:totalRequests");
 
+        const currentSecond = Math.floor(Date.now() / 1000);
+
+        const requestKey = `stats:req:${currentSecond}`;
+
+        await redisclient.incr(requestKey);
+        await redisclient.expire(requestKey, 60);
+
         if (count === 1) {
             await redisclient.expire(key, WINDOW_SIZE);
         }

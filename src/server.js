@@ -1,11 +1,12 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-import "./config/redis.js";
+import redisClient from "./config/redis.js";
 import { ratelimiter } from "./middleware/rateLimiter.js";
 import authRoutes from "./routes/authRoutes.js";
 import profileRoutes from "./routes/profileRoutes.js";
 import statsRoutes from "./routes/statsRoutes.js";
+import healthRoutes from "./routes/healthRoutes.js";
 
 // import cors from "cors";
 
@@ -19,6 +20,7 @@ app.use(express.json());
 app.use("/auth", authRoutes);
 app.use(profileRoutes);
 app.use(statsRoutes);
+app.use(healthRoutes);
 
 
 app.get("/", (req, res) =>{
@@ -43,3 +45,4 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () =>{
     console.log(`Server is running on:${PORT}`);
 });
+
