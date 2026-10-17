@@ -456,3 +456,275 @@ body {
   }
 
 }
+
+
+/*  account and rate-limit panels  */
+
+
+
+.auth-panel,
+.utilization-panel {
+  box-sizing: border-box;
+  width: 100%;
+  background: #ffffff;
+  color: #172033;
+  border: 1px solid #e5eaf1;
+  border-radius: 14px;
+  box-shadow: 0 3px 12px rgba(15, 23, 42, 0.035);
+}
+
+.auth-panel {
+  padding: 24px;
+  margin-bottom: 22px;
+}
+
+.auth-panel h2,
+.auth-panel h3,
+.utilization-panel h2,
+.utilization-panel h3 {
+  margin-top: 0;
+  color: #172033;
+  font-size: 18px;
+  font-weight: 650;
+  letter-spacing: -0.35px;
+}
+
+.auth-panel p,
+.utilization-panel p {
+  color: #64748b;
+  line-height: 1.6;
+}
+
+/* Account status */
+
+.account-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 16px 18px;
+  background: #f8fafc;
+  border: 1px solid #e8edf4;
+  border-radius: 11px;
+}
+
+.account-status button {
+  padding: 9px 15px;
+  background: #ffffff;
+  color: #344054;
+  border: 1px solid #d8e0eb;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 160ms ease, border-color 160ms ease;
+}
+
+.account-status button:hover {
+  background: #f1f5f9;
+  border-color: #bfcada;
+}
+
+/* Login and registration form */
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  max-width: 440px;
+}
+
+.auth-form input,
+.auth-panel input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 44px;
+  padding: 11px 13px;
+  background: #ffffff;
+  color: #172033;
+  border: 1px solid #d9e1ec;
+  border-radius: 9px;
+  font: inherit;
+  font-size: 14px;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.auth-form input::placeholder,
+.auth-panel input::placeholder {
+  color: #98a2b3;
+}
+
+.auth-form input:focus,
+.auth-panel input:focus {
+  outline: none;
+  border-color: #5278e8;
+  box-shadow: 0 0 0 3px rgba(59, 99, 221, 0.10);
+}
+
+.auth-button {
+  min-height: 43px;
+  padding: 10px 16px;
+  background: #315fe8;
+  color: #ffffff;
+  border: 1px solid #315fe8;
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 160ms ease, transform 160ms ease;
+}
+
+.auth-button:hover {
+  background: #254dc8;
+}
+
+.auth-button:active {
+  transform: translateY(1px);
+}
+
+.text-button {
+  padding: 4px 0;
+  background: transparent;
+  color: #315fe8;
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.text-button:hover {
+  color: #254dc8;
+  text-decoration: underline;
+}
+
+.error-message,
+.utilization-error,
+.rate-limit-error {
+  padding: 10px 12px;
+  color: #b42318;
+  background: #fff5f4;
+  border: 1px solid #fecdca;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+/* ==========================================
+   RATE-LIMIT UTILIZATION — CLEAN SAAS DESIGN
+========================================== */
+
+.utilization-panel {
+  padding: 24px;
+  margin-bottom: 22px;
+}
+
+.utilization-panel .panel-header {
+  margin-bottom: 24px;
+}
+
+/* Progress track */
+
+.utilization-progress {
+  display: block;
+  position: relative;
+  width: 100%;
+  height: 10px;
+  margin: 16px 0 8px;
+  overflow: hidden;
+  background: #e9edf5;
+  border-radius: 999px;
+}
+
+/* Progress fill
+   Keep its width controlled by React. */
+
+.utilization-progress-fill {
+  display: block;
+  height: 100%;
+  min-width: 0;
+  max-width: 100%;
+  background: #3563e9;
+  border-radius: inherit;
+  transition: width 350ms ease, background-color 250ms ease;
+}
+
+/* Utilization figures */
+
+.utilization-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.utilization-stats > div {
+  box-sizing: border-box;
+  min-width: 0;
+  padding: 16px;
+  background: #f8fafc;
+  border: 1px solid #e7ecf3;
+  border-radius: 10px;
+  transition: border-color 160ms ease, background 160ms ease;
+}
+
+.utilization-stats > div:hover {
+  background: #ffffff;
+  border-color: #cbd7ed;
+}
+
+.utilization-stats span,
+.utilization-stats small {
+  display: block;
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.utilization-stats strong {
+  display: block;
+  margin-top: 8px;
+  color: #172033;
+  font-size: 23px;
+  font-weight: 700;
+  letter-spacing: -0.6px;
+  line-height: 1.25;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+/* Responsive layout */
+
+@media (max-width: 900px) {
+  .utilization-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .auth-panel,
+  .utilization-panel {
+    padding: 18px;
+    border-radius: 12px;
+  }
+
+  .account-status {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .auth-form {
+    max-width: 100%;
+  }
+
+  .utilization-stats {
+    gap: 10px;
+  }
+
+  .utilization-stats > div {
+    padding: 13px;
+  }
+
+  .utilization-stats strong {
+    font-size: 20px;
+  }
+}
